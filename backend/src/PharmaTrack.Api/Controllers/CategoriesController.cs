@@ -6,7 +6,7 @@ using PharmaTrack.Application.Interfaces;
 
 namespace PharmaTrack.Api.Controllers;
 
-[Authorize(Roles = "Admin, Manager")]
+[Authorize(Roles = "Admin, Store Manager")]
 [ApiController]
 [Route("api/[Controller]")]
 public class CategoryController : ControllerBase
@@ -68,6 +68,17 @@ public class CategoryController : ControllerBase
             return BadRequest(response);
         }
 
+        return Ok(response);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCategoryById(int id)
+    {
+        var response = await _categoryService.GetCategoryByIdAsync(id);
+
+        if (!response.Success)
+            return NotFound(response);
+        
         return Ok(response);
     }
 }

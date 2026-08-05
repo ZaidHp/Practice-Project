@@ -30,6 +30,13 @@ public class CategoryService : ICategoryService
 
     public async Task<ApiResponseDto<CategoryDto>> CreateCategoryAsync(CreateCategoryDto dto, string createdBy)
     {
+        var existingCategory = await _categoryRepository.FindIgnoreQueryFiltersAsync(c => 
+            c.CategoryName.ToLower() == dto.CategoryName.ToLower());
+
+        if (existingCategory.Any())
+        {
+            return ApiResponseDto<CategoryDto>.FailureResponse("A category with this name already exists.");
+        }
         var category = new Category
         {
             CategoryName = dto.CategoryName,
@@ -77,9 +84,9 @@ public class CategoryService : ICategoryService
             return ApiResponseDto<CategoryDto>.FailureResponse("Category not found.");
         }
 
-        var existingCategory = await _categoryRepository.FindAsync(c => 
+        var existingCategory = await _categoryRepository.FindIgnoreQueryFiltersAsync(c => 
             c.CategoryName.ToLower() == dto.CategoryName.ToLower() && 
-            c.CategoryId != id && !c.IsDeleted);
+            c.CategoryId != id);
 
         if (existingCategory.Any())
         {
@@ -105,5 +112,25 @@ public class CategoryService : ICategoryService
         };
 
         return ApiResponseDto<CategoryDto>.SuccessResponse(responseDto, "Category updated successfully");
+    }
+
+    public async Task<ApiResponseDto<CategoryDto>> GetCategoryByIdAsync(int id)
+    {
+        var category = await _categoryRepository.GetByIdAsync(id);
+
+        if (category == null)
+        {
+            return ApiResponseDto<CategoryDto>.FailureResponse("Category not found.");
+        }
+
+        var responseDto = new CategoryDto
+        {
+            CategoryId = category.CategoryId,
+            CategoryName = category.CategoryName,
+            Description = category.Description,
+            IsActive = category.IsActive
+        };
+
+        return ApiResponseDto<CategoryDto>.SuccessResponse(responseDto);
     }
 }

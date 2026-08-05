@@ -57,4 +57,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         return await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<T>> FindIgnoreQueryFiltersAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet
+            .IgnoreQueryFilters()
+            .Where(predicate)
+            .ToListAsync();
+    }
 }

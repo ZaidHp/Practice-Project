@@ -42,7 +42,7 @@ public class MedicineService : IMedicineService
 
     public async Task<ApiResponseDto<MedicineDto>> CreateMedicineAsync(CreateMedicineDto dto, string createdBy)
     {
-        var existing = await _medicineRepository.FindAsync(
+        var existing = await _medicineRepository.FindIgnoreQueryFiltersAsync(
             m => m.MedicineCode.ToLower() == dto.MedicineCode.ToLower());
 
         if (existing.Any())
@@ -76,6 +76,7 @@ public class MedicineService : IMedicineService
             MedicineName = newMedicine.MedicineName,
             GenericName = newMedicine.GenericName,
             CategoryId = newMedicine.CategoryId,
+            CategoryName = category.CategoryName,
             ReorderLevel = newMedicine.ReorderLevel,
             UnitOfMeasure = newMedicine.UnitOfMeasure,
             IsActive = true
@@ -121,7 +122,7 @@ public class MedicineService : IMedicineService
         if (medicine == null)
             return ApiResponseDto<MedicineDto>.FailureResponse("Medicine not found.");
 
-        var existing = await _medicineRepository.FindAsync(
+        var existing = await _medicineRepository.FindIgnoreQueryFiltersAsync(
             m => m.MedicineCode.ToLower() == dto.MedicineCode.ToLower() && m.MedicineId != id);
 
         if (existing.Any())

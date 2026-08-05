@@ -9,4 +9,5 @@ public interface ICategoryService
     Task<ApiResponseDto<CategoryDto>> CreateCategoryAsync(CreateCategoryDto dto, string createdBy);
     Task<ApiResponseDto<bool>> DeleteCategoryAsync(int id);
     Task<ApiResponseDto<CategoryDto>> UpdateCategoryAsync(int id, UpdateCategoryDto dto, string updatedBy);
+    Task<ApiResponseDto<CategoryDto>> GetCategoryByIdAsync(int id);
 }

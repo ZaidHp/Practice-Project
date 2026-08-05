@@ -13,4 +13,5 @@ public interface IGenericRepository<T> where T : BaseEntity
     void Update(T entity);
     void SoftDelete(T entity);
     Task<int> SaveChangesAsync();
+    Task<IEnumerable<T>> FindIgnoreQueryFiltersAsync(Expression<Func<T, bool>> predicate);
 }
