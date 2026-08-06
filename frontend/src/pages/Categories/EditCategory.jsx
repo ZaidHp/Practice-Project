@@ -13,7 +13,7 @@ import {
   FormControlLabel,
   Switch
 } from '@mui/material';
-import { categoryService } from '../../services/categoryService';
+import { categoryApi } from '../../APIs/categoryApi';
 
 const EditCategory = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const EditCategory = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const response = await categoryService.getCategoryById(id);
+        const response = await categoryApi.getCategoryById(id);
         const category = response.data || response;
         
         setFormData({
@@ -66,7 +66,7 @@ const EditCategory = () => {
     setError(null);
 
     try {
-      await categoryService.updateCategory(id, formData);
+      await categoryApi.updateCategory(id, formData);
       navigate('/categories');
     } catch (err) {
       const validationErrors = err.response?.data?.errors;

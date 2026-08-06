@@ -23,28 +23,24 @@ import {
   DialogTitle
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { categoryService } from '../../services/categoryService';
+import { categoryApi } from '../../APIs/categoryApi';
 
 const Categories = () => {
   const navigate = useNavigate();
 
-  // Component State
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Dialog State for Deletion
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Fetch categories from backend on component mount
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await categoryService.getCategories();
-      // Assumes ApiResponseDto wraps data in a 'data' property
+      const response = await categoryApi.getCategories();
       setCategories(response.data || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load categories from the server.');
@@ -57,20 +53,17 @@ const Categories = () => {
     fetchCategories();
   }, []);
 
-  // Open delete confirmation modal
   const handleDeleteClick = (categoryId) => {
     setSelectedCategoryId(categoryId);
     setDeleteDialogOpen(true);
   };
 
-  // Confirm and delete category
   const handleConfirmDelete = async () => {
     if (!selectedCategoryId) return;
     setDeleting(true);
 
     try {
-      await categoryService.deleteCategory(selectedCategoryId);
-      // Remove soft-deleted category from state locally
+      await categoryApi.deleteCategory(selectedCategoryId);
       setCategories((prev) => prev.filter((c) => c.categoryId !== selectedCategoryId));
       setDeleteDialogOpen(false);
     } catch (err) {
@@ -193,7 +186,7 @@ const Categories = () => {
         <DialogTitle>Delete Category</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this category? This operation will soft-delete the category from the database.
+            Are you sure you want to delete this category?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

@@ -2,11 +2,10 @@ import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 
-// Pages & Components
 import Login from '../pages/Auth/Login';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
-import Sidebar from '../components/Sidebar'; // Adjust this path if necessary
+import Sidebar from '../components/Sidebar';
 
 import AddUser from './../pages/Users/AddUser';
 import Users from '../pages/Users/Users';
@@ -16,6 +15,8 @@ import EditCategory from '../pages/Categories/EditCategory';
 import Medicine from '../pages/Medicines/Medicines';
 import AddMedicine from '../pages/Medicines/AddMedicine';
 import EditMedicine from '../pages/Medicines/EditMedicine';
+import Suppliers from '../pages/Suppliers/Suppliers';
+import AddSupplier from '../pages/Suppliers/AddSuppliers';
 
 const Dashboard = () => <div>Dashboard View</div>;
 
@@ -59,6 +60,8 @@ const AppRoutes = () => {
           <Route path="/categories/edit/:id" element={<EditCategory />} />
           <Route path="/medicines/add" element={<AddMedicine />} />
           <Route path="/medicines/edit/:id" element={<EditMedicine />} />
+          <Route path="/suppliers" element={<Suppliers />} />
+          <Route path="/suppliers/add" element={<AddSupplier />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

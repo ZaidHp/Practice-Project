@@ -1,10 +1,9 @@
-import api from './api';
+import api from '../services/axiosService';
 
-export const userService = {
+export const userApi = {
 
   createUser: async (userData) => {
     const response = await api.post('/users', userData);
-    console.log('User creation response:', response);
     return response.data;
   },
   
@@ -14,7 +13,7 @@ export const userService = {
   },
 
   deleteUser: async (id) => {
-    const response = await api.delete(`/users/${id}`); 
+    const response = await api.delete(`/users/${id}`);
     return response.data;
   }
 };

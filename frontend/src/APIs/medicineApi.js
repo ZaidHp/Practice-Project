@@ -1,6 +1,6 @@
-import api from './api';
+import api from './../services/axiosService';
 
-export const medicineService = {
+export const medicineApi = {
   getMedicines: async () => {
     const response = await api.get('/medicines');
     return response.data;

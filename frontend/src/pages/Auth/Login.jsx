@@ -9,7 +9,7 @@ import {
   Paper, 
   Alert 
 } from '@mui/material';
-import { authService } from '../../services/authService';
+import { authApi } from '../../APIs/authApi';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await authService.login(credentials);
+      await authApi.login(credentials);
       
       navigate('/');
     } catch (err) {

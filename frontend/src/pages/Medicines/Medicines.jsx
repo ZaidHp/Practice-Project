@@ -23,7 +23,7 @@ import {
   DialogTitle
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { medicineService } from '../../services/medicineService';
+import { medicineApi } from '../../APIs/medicineApi';
 
 const Medicines = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const Medicines = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await medicineService.getMedicines();
+      const response = await medicineApi.getMedicines();
       setMedicines(response.data || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load medicines from the server.');
@@ -78,7 +78,7 @@ const Medicines = () => {
     setDeleting(true);
 
     try {
-      await medicineService.deleteMedicine(selectedMedicineId);
+      await medicineApi.deleteMedicine(selectedMedicineId);
       setMedicines((prev) => prev.filter((m) => m.medicineId !== selectedMedicineId));
       setDeleteDialogOpen(false);
     } catch (err) {

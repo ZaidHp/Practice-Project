@@ -23,7 +23,7 @@ import {
   DialogTitle
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { userService } from '../../services/userService';
+import { userApi } from '../../APIs/userApi';
 
 const Users = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const Users = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await userService.getUsers();
+      const response = await userApi.getUsers();
       setUsers(response.data || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load users from the server.');
@@ -63,7 +63,7 @@ const Users = () => {
     setDeleting(true);
 
     try {
-      await userService.deleteUser(selectedUserId);
+      await userApi.deleteUser(selectedUserId);
       setUsers((prevUsers) => prevUsers.filter((u) => u.userId !== selectedUserId));
       setDeleteDialogOpen(false);
     } catch (err) {
@@ -188,7 +188,7 @@ const Users = () => {
         <DialogTitle>Delete User</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this user? This operation will soft-delete the user from the database.
+            Are you sure you want to delete this user?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

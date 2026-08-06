@@ -15,39 +15,21 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { medicineApi } from '../../APIs/medicineApi';
-import { categoryApi } from '../../APIs/categoryApi';
+import { supplierApi } from '../../APIs/supplierApi';
 const AddMedicine = () => {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
-    medicineCode: '',
-    medicineName: '',
-    genericName: '',
-    categoryId: '',
-    reorderLevel: '',
-    unitOfMeasure: '',
+    SupplierName: '',
+    ContactPerson: '',
+    Phone: '',
+    Email: '',
+    Address: '',
   });
 
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [fetchingCategories, setFetchingCategories] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await categoryApi.getCategories();
-        setCategories(response.data || []); 
-      } catch (err) {
-        setError('Failed to load categories. Please refresh the page.');
-      } finally {
-        setFetchingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,14 +45,12 @@ const AddMedicine = () => {
     setError(null);
 
     const payload = {
-      ...formData,
-      categoryId: parseInt(formData.categoryId, 10) || 0,
-      reorderLevel: parseInt(formData.reorderLevel, 10) || 0
+      ...formData
     };
 
     try {
-      await medicineApi.createMedicine(payload);
-      navigate('/medicines');
+      await supplierApi.createSupplier(payload);
+      navigate('/suppliers');
     } catch (err) {
       const validationErrors = err.response?.data?.errors;
       let errorString = err.response?.data?.title 
@@ -92,10 +72,10 @@ const AddMedicine = () => {
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h5" component="h1" gutterBottom fontWeight="bold" color="primary">
-          Add New Medicine
+          Add New Supplier
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Register a new medicine into the inventory system.
+          Register a new supplier into the inventory system.
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -103,43 +83,42 @@ const AddMedicine = () => {
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
             
-            {/* Medicine Code */}
+            {/* Supplier Name */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 required
                 fullWidth
-                id="medicineCode"
-                name="medicineCode"
-                label="Medicine Code"
-                value={formData.medicineCode}
+                id="SupplierName"
+                name="SupplierName"
+                label="Supplier Name"
+                value={formData.SupplierName}
                 onChange={handleChange}
-                placeholder="e.g., MED-001"
               />
             </Grid>
 
-            {/* Medicine Name */}
+            {/* Contact Person */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 required
                 fullWidth
-                id="medicineName"
-                name="medicineName"
-                label="Medicine Name"
-                value={formData.medicineName}
+                id="ContactPerson"
+                name="ContactPerson"
+                label="Contact Person"
+                value={formData.ContactPerson}
                 onChange={handleChange}
               />
             </Grid>
 
-            {/* Generic Name */}
+            {/* Phone */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                id="genericName"
-                name="genericName"
-                label="Generic Name"
-                value={formData.genericName}
+                id="Phone"
+                name="Phone"
+                label="Phone"
+                value={formData.Phone}
                 onChange={handleChange}
-                placeholder="Optional generic equivalent"
+                placeholder="e.g., 03********"
               />
             </Grid>
 
@@ -148,59 +127,24 @@ const AddMedicine = () => {
               <TextField
                 required
                 fullWidth
-                id="unitOfMeasure"
-                name="unitOfMeasure"
-                label="Unit of Measure"
+                id="Email"
+                name="Email"
+                label="Email"
                 value={formData.unitOfMeasure}
                 onChange={handleChange}
-                placeholder="e.g., mg, ml, tablet, box"
+                placeholder="e.g., user@mail.com"
               />
             </Grid>
 
-            {/* Category Dropdown */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth required disabled={fetchingCategories}>
-                <InputLabel id="category-select-label">Category</InputLabel>
-                <Select
-                  labelId="category-select-label"
-                  id="categoryId"
-                  name="categoryId"
-                  value={formData.categoryId}
-                  label="Category"
-                  onChange={handleChange}
-                >
-                  {fetchingCategories ? (
-                    <MenuItem disabled value="">
-                      <em>Loading categories...</em>
-                    </MenuItem>
-                  ) : (
-                    categories.map((category) => (
-                      <MenuItem key={category.categoryId} value={category.categoryId}>
-                        {category.categoryName}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            {/* Reorder Level */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 required
                 fullWidth
-                id="reorderLevel"
-                name="reorderLevel"
-                label="Reorder Level"
-                type="number"
-                slotProps={{
-                  htmlInput: {
-                    min: 0,
-                  },
-                }}
-                value={formData.reorderLevel}
+                id="Address"
+                name="Address"
+                label="Address"
+                value={formData.unitOfMeasure}
                 onChange={handleChange}
-                helperText="Stock alert threshold"
               />
             </Grid>
 
@@ -210,7 +154,7 @@ const AddMedicine = () => {
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
             <Button 
               variant="outlined" 
-              onClick={() => navigate('/medicines')}
+              onClick={() => navigate('/suppliers')}
               disabled={loading}
             >
               Cancel
@@ -218,7 +162,7 @@ const AddMedicine = () => {
             <Button 
               type="submit" 
               variant="contained" 
-              disabled={loading || fetchingCategories || !formData.medicineCode || !formData.medicineName}
+              disabled={loading  || !formData.SupplierName || !formData.Phone}
               startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
             >
               {loading ? 'Saving...' : 'Create Medicine'}

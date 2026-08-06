@@ -15,8 +15,8 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { userService } from '../../services/userService';
-import { roleService } from '../../services/roleService';
+import { userApi } from '../../APIs/userApi';
+import { roleApi } from '../../APIs/roleApi';
 
 const AddUser = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const AddUser = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await roleService.getRoles();
+        const response = await roleApi.getRoles();
         setRoles(response.data || []); 
       } catch (err) {
         setError('Failed to load roles from the server.');
@@ -68,7 +68,7 @@ const AddUser = () => {
     };
 
     try {
-      await userService.createUser(payload);
+      await userApi.createUser(payload);
       navigate('/users');
     } catch (err) {
       const validationErrors = err.response?.data?.errors;

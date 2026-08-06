@@ -19,7 +19,7 @@ import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LogoutIcon from '@mui/icons-material/Logout'; 
-import { authService } from '../services/authService';
+import { authApi } from './../APIs/authApi';
 
 const drawerWidth = 260;
 
@@ -58,18 +58,12 @@ const Sidebar = () => {
       icon: <CategoryIcon />,
       allowedRoles: ['Admin', 'Store Manager'] 
     },
-    // { 
-    //   title: 'Batches & Stock', 
-    //   path: '/batches', 
-    //   icon: <InventoryIcon />,
-    //   allowedRoles: ['Admin', 'Store Manager', 'Pharmacist'] 
-    // },
-    // { 
-    //   title: 'Suppliers', 
-    //   path: '/suppliers', 
-    //   icon: <LocalShippingIcon />,
-    //   allowedRoles: ['Admin', 'Store Manager'] 
-    // },
+    { 
+      title: 'Suppliers', 
+      path: '/suppliers', 
+      icon: <LocalShippingIcon />,
+      allowedRoles: ['Admin', 'Store Manager'] 
+    },
     { 
       title: 'User Management', 
       path: '/users', 
@@ -82,7 +76,7 @@ const Sidebar = () => {
     !item.allowedRoles || item.allowedRoles.includes(userRole)
   );
 const handleLogout = () => {
-    authService.logout(); 
+    authApi.logout(); 
   };
 
   return (

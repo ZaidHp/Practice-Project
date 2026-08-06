@@ -1,6 +1,6 @@
-import api from './api';
+import api from '../services/axiosService';
 
-export const authService = {
+export const authApi = {
   login: async (credentials) => {
     const response = await api.post('/auth/login', credentials);
     

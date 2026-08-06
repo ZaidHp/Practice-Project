@@ -17,8 +17,8 @@ import {
   FormControlLabel,
   Switch
 } from '@mui/material';
-import { medicineService } from '../../services/medicineService';
-import { categoryService } from '../../services/categoryService';
+import { medicineApi } from '../../APIs/medicineApi';
+import { categoryApi } from '../../APIs/categoryApi';
 
 const EditMedicine = () => {
   const navigate = useNavigate();
@@ -43,8 +43,8 @@ const EditMedicine = () => {
     const fetchInitialData = async () => {
       try {
         const [medicineRes, categoriesRes] = await Promise.all([
-          medicineService.getMedicineById(id),
-          categoryService.getCategories()
+          medicineApi.getMedicineById(id),
+          categoryApi.getCategories()
         ]);
 
         const medicine = medicineRes.data || medicineRes;
@@ -93,7 +93,7 @@ const EditMedicine = () => {
     };
 
     try {
-      await medicineService.updateMedicine(id, payload);
+      await medicineApi.updateMedicine(id, payload);
       navigate('/medicines');
     } catch (err) {
       const validationErrors = err.response?.data?.errors;

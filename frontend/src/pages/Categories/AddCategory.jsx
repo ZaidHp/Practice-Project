@@ -11,7 +11,7 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { categoryService } from '../../services/categoryService';
+import { categoryApi } from '../../APIs/categoryApi';
 
 const AddCategory = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const AddCategory = () => {
     setError(null);
 
     try {
-      await categoryService.createCategory(formData);
+      await categoryApi.createCategory(formData);
       navigate('/categories');
     } catch (err) {
       const validationErrors = err.response?.data?.errors;
