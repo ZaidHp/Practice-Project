@@ -205,4 +205,22 @@ public class SupplierService : ISupplierService
 
         return ApiResponseDto<bool>.SuccessResponse(true, "Supplier deleted successfully.");
     }
+
+    public async Task<ApiResponseDto<IEnumerable<SupplierDto>>> GetSuppliersAsync()
+    {
+        var suppliers = await _supplierRepository.GetAllAsync();
+
+        var dtos = suppliers.Select(s => new SupplierDto
+        {
+            SupplierId = s.SupplierId,
+            SupplierName = s.SupplierName,
+            ContactPerson = s.ContactPerson,
+            Phone = s.Phone,
+            Email = s.Email,
+            Address = s.Address,
+            IsActive = s.IsActive
+        });
+
+        return ApiResponseDto<IEnumerable<SupplierDto>>.SuccessResponse(dtos, "Suppliers retrieved.");
+    }
 }

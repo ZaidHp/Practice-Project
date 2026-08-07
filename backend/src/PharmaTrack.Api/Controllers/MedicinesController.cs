@@ -76,4 +76,11 @@ public class MedicinesController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllMedicines()
+    {
+        var response = await _medicineService.GetAllMedicinesAsync();
+        return Ok(response);
+    }
 }

@@ -11,4 +11,6 @@ public interface IMedicineService
     Task<ApiResponseDto<MedicineDto>> GetMedicineByIdAsync(int id);
     Task<ApiResponseDto<MedicineDto>> UpdateMedicineAsync(int id, UpdateMedicineDto dto, string updatedBy);
     Task<ApiResponseDto<bool>> DeleteMedicineAsync(int id);
+    Task<ApiResponseDto<IEnumerable<MedicineDto>>> GetAllMedicinesAsync();
+
 }

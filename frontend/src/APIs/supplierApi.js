@@ -26,5 +26,10 @@ export const supplierApi = {
     deleteSupplier: async (id) => {
         const response = await api.delete(`/suppliers/${id}`);
         return response.data;
+    },
+
+    getAllSuppliers: async () => {
+        const response = await api.get('/suppliers/all');
+        return response.data;
     }
 }

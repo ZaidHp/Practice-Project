@@ -80,4 +80,11 @@ public class SuppliersController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllSuppliers()
+    {
+        var response = await _supplierService.GetSuppliersAsync();
+        return Ok(response);
+    }
 }

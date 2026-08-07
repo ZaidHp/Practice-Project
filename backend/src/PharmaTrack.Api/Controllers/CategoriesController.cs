@@ -81,4 +81,11 @@ public class CategoryController : ControllerBase
         
         return Ok(response);
     }
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        var response = await _categoryService.GetAllCategoriesAsync();
+        return Ok(response);
+    }
 }

@@ -10,4 +10,5 @@ public interface ISupplierService
     Task<ApiResponseDto<SupplierDto>> CreateSupplierAsync(CreateSupplierDto dto, string createdBy);
     Task<ApiResponseDto<SupplierDto>> UpdateSupplierAsync(int id, UpdateSupplierDto dto, string updatedBy);
     Task<ApiResponseDto<bool>> DeleteSupplierAsync(int id);
+    Task<ApiResponseDto<IEnumerable<SupplierDto>>> GetSuppliersAsync();
 }

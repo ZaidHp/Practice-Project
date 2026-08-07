@@ -153,4 +153,19 @@ public class CategoryService : ICategoryService
 
         return ApiResponseDto<CategoryDto>.SuccessResponse(responseDto);
     }
+
+    public async Task<ApiResponseDto<IEnumerable<CategoryDto>>> GetAllCategoriesAsync()
+    {
+        var categories = await _categoryRepository.GetAllAsync();
+
+        var dtos = categories.Select(c => new CategoryDto
+        {
+            CategoryId = c.CategoryId,
+            CategoryName = c.CategoryName,
+            Description = c.Description,
+            IsActive = c.IsActive
+        });
+
+        return ApiResponseDto<IEnumerable<CategoryDto>>.SuccessResponse(dtos, "Categories retrieved successfully.");
+    }
 }

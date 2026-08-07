@@ -10,4 +10,5 @@ public interface ICategoryService
     Task<ApiResponseDto<bool>> DeleteCategoryAsync(int id);
     Task<ApiResponseDto<CategoryDto>> UpdateCategoryAsync(int id, UpdateCategoryDto dto, string updatedBy);
     Task<ApiResponseDto<CategoryDto>> GetCategoryByIdAsync(int id);
+    Task<ApiResponseDto<IEnumerable<CategoryDto>>> GetAllCategoriesAsync();
 }

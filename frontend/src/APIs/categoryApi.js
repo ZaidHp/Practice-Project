@@ -26,5 +26,10 @@ export const categoryApi = {
   deleteCategory: async (id) => {
     const response = await api.delete(`/category/${id}`);
     return response.data;
+  },
+
+  getAllCategories: async () => {
+    const response = await api.get('/category/all');
+    return response.data;
   }
 };

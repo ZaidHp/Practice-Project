@@ -37,7 +37,7 @@ const AddMedicine = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await categoryApi.getCategories();
+        const response = await categoryApi.getAllCategories();
         setCategories(response.data || []); 
       } catch (err) {
         setError('Failed to load categories. Please refresh the page.');

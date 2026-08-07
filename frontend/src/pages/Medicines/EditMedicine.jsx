@@ -44,7 +44,7 @@ const EditMedicine = () => {
       try {
         const [medicineRes, categoriesRes] = await Promise.all([
           medicineApi.getMedicineById(id),
-          categoryApi.getCategories()
+          categoryApi.getAllCategories()
         ]);
 
         const medicine = medicineRes.data || medicineRes;
@@ -223,7 +223,11 @@ const EditMedicine = () => {
                 name="reorderLevel"
                 label="Reorder Level"
                 type="number"
-                inputProps={{ min: 0 }}
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                  },
+                }}
                 value={formData.reorderLevel}
                 onChange={handleChange}
               />

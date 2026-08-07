@@ -55,8 +55,8 @@ const AddPurchase = () => {
     const fetchInitialData = async () => {
       try {
         const [medsRes, suppsRes] = await Promise.all([
-          medicineApi.getMedicines(),
-          supplierApi.getSupplires()
+          medicineApi.getAllMedicines(),
+          supplierApi.getAllSuppliers()
         ]);
         setMedicines(medsRes.data || medsRes || []);
         setSuppliers(suppsRes.data || suppsRes || []);

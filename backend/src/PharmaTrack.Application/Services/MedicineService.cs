@@ -194,4 +194,25 @@ public class MedicineService : IMedicineService
 
         return ApiResponseDto<bool>.SuccessResponse(true, "Medicine deleted successfully.");
     }
+
+    public async Task<ApiResponseDto<IEnumerable<MedicineDto>>> GetAllMedicinesAsync()
+    {
+        var medicines = await _medicineRepository.GetAllAsync();
+        var categories = await _categoryRepository.GetAllAsync();
+
+        var dtos = medicines.Select(m => new MedicineDto
+        {
+            MedicineId = m.MedicineId,
+            CategoryId = m.CategoryId,
+            CategoryName = categories.FirstOrDefault(c => c.CategoryId == m.CategoryId)?.CategoryName ?? "Unknown",
+            MedicineCode = m.MedicineCode,
+            MedicineName = m.MedicineName,
+            GenericName = m.GenericName,
+            ReorderLevel = m.ReorderLevel,
+            UnitOfMeasure = m.UnitOfMeasure,
+            IsActive = m.IsActive
+        });
+
+        return ApiResponseDto<IEnumerable<MedicineDto>>.SuccessResponse(dtos, "All medicines retrieved successfully.");
+    }
 }
