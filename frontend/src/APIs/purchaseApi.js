@@ -6,8 +6,10 @@ export const purchaseApi = {
             return response.data;
     },
 
-    getPurchases: async () => {
-        const response = await api.get('/purchases');
+    getPurchases: async (page = 1, pageSize = 10, search = '') => {
+        const response = await api.get('/purchases', {
+            params: { page, pageSize, search }
+        });
         return response.data;
     }
 }

@@ -20,9 +20,12 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  TextField,
+  InputAdornment,
+  TablePagination
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Search as SearchIcon } from '@mui/icons-material';
 import { userApi } from '../../APIs/userApi';
 
 const Users = () => {
@@ -31,6 +34,11 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState('');
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -40,8 +48,9 @@ const Users = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await userApi.getUsers();
-      setUsers(response.data || []);
+      const response = await userApi.getUsers(page + 1, rowsPerPage, search);
+      setUsers(response.data?.items || []);
+      setTotalCount(response.data?.totalCount || 0);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load users from the server.');
     } finally {
@@ -50,8 +59,26 @@ const Users = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchUsers();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, page, rowsPerPage]);
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(0);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleDeleteClick = (userId) => {
     setSelectedUserId(userId);
@@ -81,7 +108,10 @@ const Users = () => {
         <Box 
           sx={{ 
             display: 'flex',
-            alignItems: 'center', 
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 2, 
             mb: 3 
           }}
         >
@@ -93,15 +123,33 @@ const Users = () => {
               View, add, and delete system users and their assigned roles.
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/users/add')}
-            sx={{ ml: 'auto' }}
-          >
-            Add User
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              {/* Search Input */}
+              <TextField
+                size="small"
+                placeholder="Search users..."
+                value={search}
+                onChange={handleSearchChange}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                        <SearchIcon />
+                        </InputAdornment>
+                      ),
+                  },
+                }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => navigate('/users/add')}
+                sx={{ ml: 'auto' }}
+              >
+                Add User
+              </Button>
+          </Box>
         </Box>
 
         {/* Error Notification */}
@@ -118,6 +166,7 @@ const Users = () => {
           </Box>
         ) : (
           /* Users Table */
+          <>
           <TableContainer>
             <Table sx={{ minWidth: 650 }} aria-label="user list table">
               <TableHead>
@@ -177,6 +226,17 @@ const Users = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          {/* Pagination Controls */}
+          <TablePagination
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          />
+          </>
         )}
       </Paper>
 

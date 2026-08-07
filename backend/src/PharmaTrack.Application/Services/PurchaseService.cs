@@ -4,6 +4,7 @@ using PharmaTrack.Application.DTOs.Purchase;
 using PharmaTrack.Application.Interfaces;
 using PharmaTrack.Domain.Entities;
 using PharmaTrack.Domain.Enums;
+using System.Linq.Expressions;
 
 namespace PharmaTrack.Application.Services
 {
@@ -108,26 +109,40 @@ namespace PharmaTrack.Application.Services
             }
         }
 
-        public async Task<ApiResponseDto<IEnumerable<PurchaseDto>>> GetAllPurchasesAsync()
+        public async Task<ApiResponseDto<PaginatedListDto<PurchaseDto>>> GetAllPurchasesAsync(int page, int pageSize, string? search)
         {
-            var purchases = await _purchaseRepository.GetAllAsync();
+            Expression<Func<Purchase, bool>> predicate = p => !p.IsDeleted;
             var suppliers = await _supplierRepository.GetAllAsync();
+    
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var lowerSearch = search.ToLower();
+                predicate = p => !p.IsDeleted && 
+                (p.InvoiceNumber.ToLower().Contains(lowerSearch) || 
+                (p.Supplier != null && p.Supplier.SupplierName.ToLower().Contains(lowerSearch))); 
+            }
+
+            var (purchases, totalCount) = await _purchaseRepository.GetPagedAsync(predicate, page, pageSize);
+    
             var purchaseDtos = purchases.Select(p => new PurchaseDto
             {
                 PurchaseId = p.PurchaseId,
                 SupplierId = p.SupplierId,
-                SupplierName = suppliers.FirstOrDefault(s => s.SupplierId == p.SupplierId)?.SupplierName ?? "Unknown",
+                SupplierName = p.Supplier.SupplierName ?? "Unknown",
                 InvoiceNumber = p.InvoiceNumber,
                 PurchaseDate = p.PurchaseDate,
                 TotalAmount = p.TotalAmount
             }).ToList();
 
-            return new ApiResponseDto<IEnumerable<PurchaseDto>>
-            {
-                Success = true,
-                Message = "Purchases retrieved successfully.",
-                Data = purchaseDtos
+            var pagedResult = new PaginatedListDto<PurchaseDto> 
+            { 
+                Items = purchaseDtos, 
+                TotalCount = totalCount, 
+                CurrentPage = page, 
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize) 
             };
+
+            return ApiResponseDto<PaginatedListDto<PurchaseDto>>.SuccessResponse(pagedResult, "Purchases retrieved successfully.");
         }
     }
 }

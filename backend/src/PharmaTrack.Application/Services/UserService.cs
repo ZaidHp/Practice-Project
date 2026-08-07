@@ -1,6 +1,7 @@
 using PharmaTrack.Application.DTOs.Common;
 using PharmaTrack.Application.DTOs.User;
 using PharmaTrack.Application.Interfaces;
+using System.Linq.Expressions;
 using PharmaTrack.Domain.Entities;
 
 namespace PharmaTrack.Application.Services;
@@ -65,23 +66,43 @@ public class UserService : IUserService
         return ApiResponseDto<UserDto>.SuccessResponse(responseDto, "User created successfully.");
     }
 
-    public async Task<ApiResponseDto<IEnumerable<UserDto>>> GetAllUserAsync()
+    public async Task<ApiResponseDto<PaginatedListDto<UserDto>>> GetAllUserAsync(int page, int pageSize, string? search)
     {
-        var users = await _userRepository.GetAllAsync();
+        Expression<Func<User, bool>> predicate = u => !u.IsDeleted;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lowerSearch = search.ToLower();
+            predicate = u => !u.IsDeleted && 
+                (u.FullName.ToLower().Contains(lowerSearch) || 
+                u.Username.ToLower().Contains(lowerSearch) || 
+                u.Email.ToLower().Contains(lowerSearch));
+        }
+
+        var (items, totalCount) = await _userRepository.GetPagedAsync(predicate, page, pageSize);
         var roles = await _roleRepository.GetAllAsync();
 
-        var userDto = users.Select(u => new UserDto
+        var dtos = items.Select(u => new UserDto
         {
             UserId = u.UserId,
             FullName = u.FullName,
             Username = u.Username,
             Email = u.Email,
             RoleName = roles.FirstOrDefault(r => r.RoleId == u.RoleId)?.RoleName ?? "Unknown",
-            IsActive = u.IsActive  
+            IsActive = u.IsActive
         });
 
-        return ApiResponseDto<IEnumerable<UserDto>>.SuccessResponse(userDto, "User retrieved successfully.");
+        var pagedResult = new PaginatedListDto<UserDto>
+        {
+            Items = dtos,
+            TotalCount = totalCount,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+
+        return ApiResponseDto<PaginatedListDto<UserDto>>.SuccessResponse(pagedResult, "Users retrieved successfully.");
     }
+
 
     public async Task<ApiResponseDto<bool>> DeleteUserAsync(int id)
     {

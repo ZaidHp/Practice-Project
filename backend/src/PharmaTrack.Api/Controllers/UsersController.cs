@@ -35,9 +35,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
     {
-        var response = await _userService.GetAllUserAsync();
+        var response = await _userService.GetAllUserAsync(page, pageSize, search);
         return Ok(response);
     }
 

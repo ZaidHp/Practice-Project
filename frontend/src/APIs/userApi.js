@@ -7,8 +7,10 @@ export const userApi = {
     return response.data;
   },
   
-  getUsers: async () => {
-    const response = await api.get('/users');
+  getUsers: async (page = 1, pageSize = 10, search = '') => {
+    const response = await api.get('/users', {
+      params: { page, pageSize, search }
+    });
     return response.data;
   },
 

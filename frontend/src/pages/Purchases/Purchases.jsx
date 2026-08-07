@@ -13,9 +13,12 @@ import {
   TableHead,
   TableRow,
   CircularProgress,
-  Alert
+  Alert,
+  TextField,
+  InputAdornment,
+  TablePagination
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { purchaseApi } from '../../APIs/purchaseApi';
 
 const Purchases = () => {
@@ -24,21 +27,45 @@ const Purchases = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchPurchases();
-  }, []);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState('');
 
   const fetchPurchases = async () => {
     try {
       setLoading(true);
-      const response = await purchaseApi.getPurchases();
-      setPurchases(response.data || response || []);
+      const response = await purchaseApi.getPurchases(page + 1, rowsPerPage, search);
+      setPurchases(response.data?.items || []);
+      setTotalCount(response.data?.totalCount || 0);
       setError(null);
     } catch (err) {
       setError('Failed to load purchases. Please try again later.');
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchPurchases();
+    }, 500);
+  
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, page, rowsPerPage]);
+  
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(0);
+  };
+  
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const formatDate = (dateString) => {
@@ -54,7 +81,10 @@ const Purchases = () => {
         <Box 
           sx={{ 
             display: 'flex', 
-            alignItems: 'flex-start', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 2,
             mb: 3 
           }}
         >
@@ -66,6 +96,23 @@ const Purchases = () => {
               View and manage incoming inventory invoices.
             </Typography>
           </Box>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {/* Search Input */}
+            <TextField
+              size="small"
+              placeholder="Search purchase..."
+              value={search}
+              onChange={handleSearchChange}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                   ),
+                },
+              }}
+            />
           <Button 
             variant="contained" 
             color="primary"
@@ -75,6 +122,7 @@ const Purchases = () => {
           >
             Add Purchase
           </Button>
+          </Box>
         </Box>
 
         {/* Error Notification */}
@@ -90,6 +138,7 @@ const Purchases = () => {
             <CircularProgress />
           </Box>
         ) : (
+          <>
           <TableContainer>
             <Table sx={{ minWidth: 800 }} aria-label="purchases table">
               <TableHead>
@@ -126,6 +175,17 @@ const Purchases = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          {/* Pagination Controls */}
+          <TablePagination
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          />
+          </>
         )}
       </Paper>
     </Container>

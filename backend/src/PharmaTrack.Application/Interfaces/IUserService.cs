@@ -6,6 +6,6 @@ namespace PharmaTrack.Application.Interfaces;
 public interface IUserService
 {
     Task<ApiResponseDto<UserDto>> CreateUserAsync(CreateUserDto dto, string createdBy);
-    Task<ApiResponseDto<IEnumerable<UserDto>>> GetAllUserAsync();
+    Task<ApiResponseDto<PaginatedListDto<UserDto>>> GetAllUserAsync(int page, int pageSize, string? search);
     Task<ApiResponseDto<bool>> DeleteUserAsync(int id);
 }

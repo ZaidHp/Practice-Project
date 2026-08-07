@@ -42,9 +42,9 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllPurchases()
+    public async Task<IActionResult> GetAllPurchases([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
     {
-        var response = await _purchaseService.GetAllPurchasesAsync();
+        var response = await _purchaseService.GetAllPurchasesAsync(page, pageSize, search);
 
         if (response.Success)
             return Ok(response);

@@ -6,5 +6,5 @@ namespace PharmaTrack.Application.Interfaces;
 public interface IPurchaseService
 {
     Task<ApiResponseDto<bool>> AddPurchasesAsync(CreatePurchaseRequestDto dto, int id, string createdBy);
-    Task<ApiResponseDto<IEnumerable<PurchaseDto>>> GetAllPurchasesAsync();
+    Task<ApiResponseDto<PaginatedListDto<PurchaseDto>>> GetAllPurchasesAsync(int page, int pageSize, string? search);
 }
