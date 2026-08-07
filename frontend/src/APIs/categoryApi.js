@@ -1,8 +1,10 @@
 import api from './../services/axiosService';
 
 export const categoryApi = {
-  getCategories: async () => {
-    const response = await api.get('/category');
+  getCategories: async (page = 1, pageSize = 10, search = '') => {
+    const response = await api.get('/category', {
+      params: { page, pageSize, search }
+    });
     return response.data;
   },
 

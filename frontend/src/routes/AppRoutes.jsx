@@ -17,6 +17,9 @@ import AddMedicine from '../pages/Medicines/AddMedicine';
 import EditMedicine from '../pages/Medicines/EditMedicine';
 import Suppliers from '../pages/Suppliers/Suppliers';
 import AddSupplier from '../pages/Suppliers/AddSuppliers';
+import EditSupplier from '../pages/Suppliers/EditSuppliers';
+import AddPurchase from '../pages/Purchases/AddPurchase';
+import Purchases from '../pages/Purchases/Purchases';
 
 const Dashboard = () => <div>Dashboard View</div>;
 
@@ -62,6 +65,9 @@ const AppRoutes = () => {
           <Route path="/medicines/edit/:id" element={<EditMedicine />} />
           <Route path="/suppliers" element={<Suppliers />} />
           <Route path="/suppliers/add" element={<AddSupplier />} />
+          <Route path="/suppliers/edit/:id" element={<EditSupplier />} />
+          <Route path='/purchases/add' element={<AddPurchase/>}/>
+          <Route path='/purchases' element={<Purchases/>}/>
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

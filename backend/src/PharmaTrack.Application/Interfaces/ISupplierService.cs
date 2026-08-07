@@ -5,7 +5,7 @@ namespace PharmaTrack.Application.Interfaces;
 
 public interface ISupplierService
 {
-    Task<ApiResponseDto<IEnumerable<SupplierDto>>> GetAllSuppliersAsync();
+    Task<ApiResponseDto<PaginatedListDto<SupplierDto>>> GetAllSuppliersAsync(int page, int pageSize, string? search);
     Task<ApiResponseDto<SupplierDto>> GetSupplierById(int id);
     Task<ApiResponseDto<SupplierDto>> CreateSupplierAsync(CreateSupplierDto dto, string createdBy);
     Task<ApiResponseDto<SupplierDto>> UpdateSupplierAsync(int id, UpdateSupplierDto dto, string updatedBy);

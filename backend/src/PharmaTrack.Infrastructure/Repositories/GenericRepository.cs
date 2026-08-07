@@ -58,6 +58,15 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         return await _context.SaveChangesAsync();
     }
 
+    public async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(Expression<Func<T, bool>> predicate, int page, int pageSize)
+    {
+        var query = _dbSet.Where(predicate);
+        var totalCount = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+    
+        return (items, totalCount);
+    }
+
     public async Task<IEnumerable<T>> FindIgnoreQueryFiltersAsync(Expression<Func<T, bool>> predicate)
     {
         return await _dbSet

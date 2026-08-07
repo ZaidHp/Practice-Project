@@ -1,8 +1,10 @@
 import api from './../services/axiosService';
 
 export const medicineApi = {
-  getMedicines: async () => {
-    const response = await api.get('/medicines');
+  getMedicines: async (page = 1, pageSize = 10, search = '') => {
+    const response = await api.get('/medicines', {
+      params: { page, pageSize, search }
+    });
     return response.data;
   },
 

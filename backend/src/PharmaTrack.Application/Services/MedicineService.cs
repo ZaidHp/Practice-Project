@@ -2,6 +2,7 @@ using System.Xml.XPath;
 using PharmaTrack.Application.DTOs.Common;
 using PharmaTrack.Application.DTOs.Medicine;
 using PharmaTrack.Application.Interfaces;
+using System.Linq.Expressions;
 using PharmaTrack.Domain.Entities;
 
 namespace PharmaTrack.Application.Services;
@@ -19,25 +20,45 @@ public class MedicineService : IMedicineService
         _batchRepository = batchRepository;
     }
 
-    public async Task<ApiResponseDto<IEnumerable<MedicineDto>>> GetAllMedicineAsync()
+    public async Task<ApiResponseDto<PaginatedListDto<MedicineDto>>> GetAllMedicineAsync(int page, int pageSize, string? search)
     {
-        var medicines = await _medicineRepository.GetAllAsync();
-        var categories = await _categoryRepository.GetAllAsync();
+       Expression<Func<Medicine, bool>> predicate = m => !m.IsDeleted;
+    
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lowerSearch = search.ToLower();
+            predicate = m => !m.IsDeleted && 
+                (m.MedicineName.ToLower().Contains(lowerSearch) || 
+                m.MedicineCode.ToLower().Contains(lowerSearch) || 
+                (m.GenericName != null && m.GenericName.ToLower().Contains(lowerSearch)));
+        }
 
-        var dtoList = medicines.Select( m => new MedicineDto
+        var (items, totalCount) = await _medicineRepository.GetPagedAsync(predicate, page, pageSize);
+        var category = await _categoryRepository.GetAllAsync();
+
+
+        var dtos = items.Select(m => new MedicineDto
         {
             MedicineId = m.MedicineId,
+            CategoryId = m.CategoryId,
+            CategoryName = category.FirstOrDefault(c => c.CategoryId == m.CategoryId)?.CategoryName ?? "Unknown",
             MedicineCode = m.MedicineCode,
             MedicineName = m.MedicineName,
             GenericName = m.GenericName,
-            CategoryId = m.CategoryId,
-            CategoryName = categories
-                .FirstOrDefault(c => c.CategoryId == m.CategoryId)?.CategoryName ?? "Unknown",
             ReorderLevel = m.ReorderLevel,
-            UnitOfMeasure = m.UnitOfMeasure
+            UnitOfMeasure = m.UnitOfMeasure,
+            IsActive = m.IsActive
         });
 
-        return ApiResponseDto<IEnumerable<MedicineDto>>.SuccessResponse(dtoList);
+        var pagedResult = new PaginatedListDto<MedicineDto> 
+        { 
+            Items = dtos, 
+            TotalCount = totalCount, 
+            CurrentPage = page, 
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize) 
+        };
+    
+        return ApiResponseDto<PaginatedListDto<MedicineDto>>.SuccessResponse(pagedResult, "Medicines retrieved.");
     }
 
     public async Task<ApiResponseDto<MedicineDto>> CreateMedicineAsync(CreateMedicineDto dto, string createdBy)

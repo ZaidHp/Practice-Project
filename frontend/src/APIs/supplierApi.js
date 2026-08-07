@@ -1,8 +1,10 @@
 import api from './../services/axiosService';
 
 export const supplierApi = {
-    getSupplires: async () => {
-        const response = await api.get('/suppliers');
+    getSupplires: async (page = 1, pageSize = 10, search = '') => {
+        const response = await api.get('/suppliers', {
+            params: { page, pageSize, search }
+        });
         return response.data;
     },
 

@@ -19,9 +19,9 @@ public class SuppliersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
     {
-        var response = await _supplierService.GetAllSuppliersAsync();
+        var response = await _supplierService.GetAllSuppliersAsync(page, pageSize, search);
         return Ok(response);
     }
 

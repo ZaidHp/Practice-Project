@@ -19,9 +19,9 @@ public class MedicinesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
     {
-        var response = await _medicineService.GetAllMedicineAsync();
+        var response = await _medicineService.GetAllMedicineAsync(page, pageSize, search);
         return Ok(response);
     }
 

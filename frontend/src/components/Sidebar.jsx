@@ -9,7 +9,7 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Divider
+  Divider,
 } from '@mui/material';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -62,6 +62,12 @@ const Sidebar = () => {
       title: 'Suppliers', 
       path: '/suppliers', 
       icon: <LocalShippingIcon />,
+      allowedRoles: ['Admin', 'Store Manager'] 
+    },
+    { 
+      title: 'Purchases', 
+      path: '/purchases', 
+      icon: <InventoryIcon />,
       allowedRoles: ['Admin', 'Store Manager'] 
     },
     { 

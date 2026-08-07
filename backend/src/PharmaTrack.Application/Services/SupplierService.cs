@@ -15,21 +15,41 @@ public class SupplierService : ISupplierService
         _supplierRepository = supplierRepository;
     }
 
-    public async Task<ApiResponseDto<IEnumerable<SupplierDto>>> GetAllSuppliersAsync()
+    public async Task<ApiResponseDto<PaginatedListDto<SupplierDto>>> GetAllSuppliersAsync(int page, int pageSize, string? search)
     {
-        var suppliers = await _supplierRepository.GetAllAsync();
-        var dtoList = suppliers.Select(s => new SupplierDto
+        Expression<Func<Supplier, bool>> predicate = s => !s.IsDeleted;
+    
+        if (!string.IsNullOrWhiteSpace(search))
         {
-           SupplierId = s.SupplierId,
-           SupplierName = s.SupplierName,
+            var lowerSearch = search.ToLower();
+            predicate = s => !s.IsDeleted && 
+                (s.SupplierName.ToLower().Contains(lowerSearch) || 
+                (s.ContactPerson != null && s.ContactPerson.ToLower().Contains(lowerSearch)) || 
+                (s.Email != null && s.Email.ToLower().Contains(lowerSearch)));
+        }
+
+        var (items, totalCount) = await _supplierRepository.GetPagedAsync(predicate, page, pageSize);
+
+        var dtos = items.Select(s => new SupplierDto
+        {
+            SupplierId = s.SupplierId,
+            SupplierName = s.SupplierName,
             ContactPerson = s.ContactPerson,
             Phone = s.Phone,
             Email = s.Email,
             Address = s.Address,
-            IsActive = s.IsActive 
+            IsActive = s.IsActive
         });
 
-        return ApiResponseDto<IEnumerable<SupplierDto>>.SuccessResponse(dtoList);
+        var pagedResult = new PaginatedListDto<SupplierDto> 
+        { 
+            Items = dtos, 
+            TotalCount = totalCount, 
+            CurrentPage = page, 
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize) 
+        };
+    
+        return ApiResponseDto<PaginatedListDto<SupplierDto>>.SuccessResponse(pagedResult, "Suppliers retrieved.");
     }
 
     public async Task<ApiResponseDto<SupplierDto>> GetSupplierById(int id)

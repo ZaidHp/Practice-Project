@@ -20,9 +20,12 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  TextField,
+  InputAdornment,
+  TablePagination
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material';
 import { categoryApi } from '../../APIs/categoryApi';
 
 const Categories = () => {
@@ -31,6 +34,11 @@ const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState('');
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
@@ -40,8 +48,9 @@ const Categories = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await categoryApi.getCategories();
-      setCategories(response.data || []);
+      const response = await categoryApi.getCategories(page + 1, rowsPerPage, search);
+      setCategories(response.data?.items || []);
+      setTotalCount(response.data?.totalCount || 0);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load categories from the server.');
     } finally {
@@ -50,8 +59,26 @@ const Categories = () => {
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchCategories();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, page, rowsPerPage]);
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(0);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleDeleteClick = (categoryId) => {
     setSelectedCategoryId(categoryId);
@@ -81,7 +108,10 @@ const Categories = () => {
         <Box 
           sx={{ 
             display: 'flex', 
-            alignItems: 'flex-start', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 2,
             mb: 3 
           }}
         >
@@ -93,15 +123,33 @@ const Categories = () => {
               View, add, edit, and delete product categories.
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/categories/add')}
-            sx={{ ml: 'auto' }}
-          >
-            Add Category
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {/* Search Input */}
+            <TextField
+              size="small"
+              placeholder="Search medicines..."
+              value={search}
+              onChange={handleSearchChange}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/categories/add')}
+              sx={{ ml: 'auto' }}
+            >
+              Add Category
+            </Button>
+          </Box>
         </Box>
 
         {/* Error Notification */}
@@ -118,6 +166,7 @@ const Categories = () => {
           </Box>
         ) : (
           /* Categories Table */
+          <>
           <TableContainer>
             <Table sx={{ minWidth: 650 }} aria-label="category list table">
               <TableHead>
@@ -175,6 +224,17 @@ const Categories = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          {/* Pagination Controls */}
+            <TablePagination
+              component="div"
+              count={totalCount}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
+          </>
         )}
       </Paper>
 

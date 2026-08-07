@@ -20,12 +20,16 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  TextField,
+  InputAdornment,
+  TablePagination
 } from '@mui/material';
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
+  Search as SearchIcon
 } from '@mui/icons-material';
 import { supplierApi } from '../../APIs/supplierApi';
 
@@ -36,6 +40,11 @@ const Suppliers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState('');
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -45,9 +54,10 @@ const Suppliers = () => {
     setError(null);
 
     try {
-      const response = await supplierApi.getSupplires();
+      const response = await supplierApi.getSupplires(page + 1, rowsPerPage, search);
 
-      setSuppliers(response.data || []);
+      setSuppliers(response.data?.items || []);
+      setTotalCount(response.data?.totalCount || 0);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -59,8 +69,26 @@ const Suppliers = () => {
   };
 
   useEffect(() => {
-    fetchSuppliers();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchSuppliers();
+    }, 500);
+  
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, page, rowsPerPage]);
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(0);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleDeleteClick = (supplierId) => {
     setSelectedSupplierId(supplierId);
@@ -76,7 +104,6 @@ const Suppliers = () => {
     try {
       await supplierApi.deleteSupplier(selectedSupplierId);
 
-      // Remove deleted supplier from table
       setSuppliers((prev) =>
         prev.filter(
           (supplier) => supplier.supplierId !== selectedSupplierId
@@ -109,7 +136,10 @@ const Suppliers = () => {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'flex-start',
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 2,
             mb: 3
           }}
         >
@@ -130,14 +160,31 @@ const Suppliers = () => {
               View, add, edit, and delete suppliers.
             </Typography>
           </Box>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/suppliers/add')}
-          >
-            Add Supplier
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {/* Search Input */}
+            <TextField
+              size="small"
+              placeholder="Search suppliers..."
+              value={search}
+              onChange={handleSearchChange}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/suppliers/add')}
+            >
+              Add Supplier
+            </Button>
+          </Box>
         </Box>
 
         {/* Error */}
@@ -163,6 +210,7 @@ const Suppliers = () => {
             <CircularProgress />
           </Box>
         ) : (
+          <>
           <TableContainer>
             <Table>
               <TableHead>
@@ -277,6 +325,17 @@ const Suppliers = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          {/* Pagination Controls */}
+          <TablePagination
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          />
+          </>
         )}
       </Paper>
 
@@ -292,7 +351,6 @@ const Suppliers = () => {
         <DialogContent>
           <DialogContentText>
             Are you sure you want to delete this supplier?
-            This action cannot be undone.
           </DialogContentText>
         </DialogContent>
 

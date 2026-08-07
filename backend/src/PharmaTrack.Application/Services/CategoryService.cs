@@ -2,6 +2,7 @@ using PharmaTrack.Application.DTOs.Common;
 using PharmaTrack.Application.DTOs.Category;
 using PharmaTrack.Application.Interfaces;
 using PharmaTrack.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace PharmaTrack.Application.Services;
 
@@ -14,10 +15,21 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<ApiResponseDto<IEnumerable<CategoryDto>>> GetAllCategoryAsync()
+    public async Task<ApiResponseDto<PaginatedListDto<CategoryDto>>> GetAllCategoryAsync(int page, int pageSize, string? search)
     {
-        var categories = await _categoryRepository.GetAllAsync();
-        var dtoList = categories.Select(c => new CategoryDto
+        Expression<Func<Category, bool>> predicate = c => !c.IsDeleted;
+    
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lowerSearch = search.ToLower();
+            predicate = c => !c.IsDeleted && 
+                (c.CategoryName.ToLower().Contains(lowerSearch) || 
+                (c.Description != null && c.Description.ToLower().Contains(lowerSearch)));
+        }
+
+        var (items, totalCount) = await _categoryRepository.GetPagedAsync(predicate, page, pageSize);
+
+        var dtos = items.Select(c => new CategoryDto
         {
             CategoryId = c.CategoryId,
             CategoryName = c.CategoryName,
@@ -25,7 +37,15 @@ public class CategoryService : ICategoryService
             IsActive = c.IsActive
         });
 
-        return ApiResponseDto<IEnumerable<CategoryDto>>.SuccessResponse(dtoList);
+        var pagedResult = new PaginatedListDto<CategoryDto> 
+        { 
+            Items = dtos, 
+            TotalCount = totalCount, 
+            CurrentPage = page, 
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize) 
+        };
+    
+        return ApiResponseDto<PaginatedListDto<CategoryDto>>.SuccessResponse(pagedResult, "Categories retrieved.");
     }
 
     public async Task<ApiResponseDto<CategoryDto>> CreateCategoryAsync(CreateCategoryDto dto, string createdBy)
